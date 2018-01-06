@@ -49,7 +49,7 @@ class HeliumPanelController : NSWindowController {
     var backupFrame : NSRect = NSRect.zero
 
     let userDefaults = UserDefaults.standard
-
+    
     private var webViewController: WebViewController {
         return self.window?.contentViewController as! WebViewController
     }
@@ -78,7 +78,7 @@ class HeliumPanelController : NSWindowController {
         }
     }
 
-    private  enum TranslucencyPreference {
+    private enum TranslucencyPreference: String {
         case always
         case mouseOver
         case mouseOutside
@@ -111,6 +111,7 @@ class HeliumPanelController : NSWindowController {
         panel.isFloatingPanel = true
 
         let _ = AppleMediaKeyController.init()
+        let app = NSApplication.shared().delegate as! AppDelegate
 
         NotificationCenter.default.addObserver(self, selector: #selector(HeliumPanelController.didBecomeActive), name: NSNotification.Name.NSApplicationDidBecomeActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(HeliumPanelController.willResignActive), name: NSNotification.Name.NSApplicationWillResignActive, object: nil)
@@ -122,9 +123,39 @@ class HeliumPanelController : NSWindowController {
 
         self.setupTitleVisibility()
         setFloatOverFullScreenApps()
-        if let alpha = UserDefaults.standard.object(forKey: UserSetting.opacityPercentage.userDefaultsKey) {
-            didUpdateAlpha(CGFloat(alpha as! Int))
+
+        let pref = TranslucencyPreference(rawValue: userDefaults.string(forKey: UserSetting.translucencyPreference.userDefaultsKey) ?? "always")!
+        if userDefaults.bool(forKey: UserSetting.translucencyEnabled.userDefaultsKey) {
+            didEnableTranslucency()
+            app.translucencyEnabled.state = NSOnState
+        } else {
+            didDisableTranslucency()
+            app.translucencyEnabled.state = NSOffState
         }
+        
+        switch pref {
+        case TranslucencyPreference.mouseOver:
+            app.translucencyMouseOver.state = NSOnState
+        case TranslucencyPreference.mouseOutside:
+            app.translucencyMouseOutside.state = NSOnState
+        case TranslucencyPreference.always:
+            app.translucencyAlways.state = NSOnState
+        }
+        translucencyPreference = pref
+
+        app.magicURLMenu.state = userDefaults.bool(forKey: UserSetting.disabledMagicURLs.userDefaultsKey) ? NSOffState : NSOnState
+        app.fullScreenFloatMenu.state = userDefaults.bool(forKey: UserSetting.disabledFullScreenFloat.userDefaultsKey) ? NSOffState : NSOnState
+        app.hideTitleBarMenu.state = userDefaults.bool(forKey: UserSetting.hideTitle.userDefaultsKey) ? NSOnState : NSOffState
+        
+        if let alpha = userDefaults.object(forKey: UserSetting.opacityPercentage.userDefaultsKey) {
+            didUpdateAlpha(CGFloat(alpha as! Int))
+            let offset = (alpha as! Int)/10 - 1
+            for (index, button) in app.percentageMenu.submenu!.items.enumerated() {
+                (button ).state = (offset == index) ? NSOnState : NSOffState
+            }
+        }
+        
+        self.windowFrameAutosaveName = "position"
     }
 
     // MARK : Mouse events
@@ -154,6 +185,8 @@ class HeliumPanelController : NSWindowController {
     // MARK : Translucency
     private func updateTranslucency() {
         currentlyTranslucent = shouldBeTranslucent()
+        userDefaults.set(translucencyPreference.rawValue, forKey: UserSetting.translucencyPreference.userDefaultsKey)
+        userDefaults.set(translucencyEnabled, forKey: UserSetting.translucencyEnabled.userDefaultsKey)
     }
 
     private func shouldBeTranslucent() -> Bool {
@@ -176,7 +209,7 @@ class HeliumPanelController : NSWindowController {
     }
 
     private func setFloatOverFullScreenApps() {
-        if UserDefaults.standard.bool(forKey: UserSetting.disabledFullScreenFloat.userDefaultsKey) {
+        if userDefaults.bool(forKey: UserSetting.disabledFullScreenFloat.userDefaultsKey) {
             panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
 
         } else {
@@ -229,7 +262,7 @@ class HeliumPanelController : NSWindowController {
         let value = sender.title.substring(to: sender.title.index(sender.title.endIndex, offsetBy: -1))
         if let alpha = Int(value) {
              didUpdateAlpha(CGFloat(alpha))
-             UserDefaults.standard.set(alpha, forKey: UserSetting.opacityPercentage.userDefaultsKey)
+             userDefaults.set(alpha, forKey: UserSetting.opacityPercentage.userDefaultsKey)
         }
     }
 
@@ -247,7 +280,7 @@ class HeliumPanelController : NSWindowController {
 
     @IBAction private func floatOverFullScreenAppsToggled(_ sender: NSMenuItem) {
         sender.state = (sender.state == NSOnState) ? NSOffState : NSOnState
-        UserDefaults.standard.set((sender.state == NSOffState), forKey: UserSetting.disabledFullScreenFloat.userDefaultsKey)
+        userDefaults.set((sender.state == NSOffState), forKey: UserSetting.disabledFullScreenFloat.userDefaultsKey)
 
         setFloatOverFullScreenApps()
     }
@@ -259,7 +292,7 @@ class HeliumPanelController : NSWindowController {
             sender.state = NSOnState
         }
 
-        UserDefaults.standard.set(sender.state, forKey: UserSetting.hideTitle.userDefaultsKey)
+        userDefaults.set(sender.state, forKey: UserSetting.hideTitle.userDefaultsKey)
         self.setupTitleVisibility()
     }
 
@@ -278,13 +311,13 @@ class HeliumPanelController : NSWindowController {
 
     @IBAction func activateByWindowToggled(_ sender: NSMenuItem) {
         sender.state = (sender.state == NSOnState) ? NSOffState : NSOnState
-        UserDefaults.standard.set((sender.state == NSOnState), forKey: UserSetting.activateByWindow.userDefaultsKey)
+        userDefaults.set((sender.state == NSOnState), forKey: UserSetting.activateByWindow.userDefaultsKey)
         self.setupTitleVisibility()
     }
 
     private func setupTitleVisibility() {
-        let hideTitle = UserDefaults.standard.bool(forKey: UserSetting.hideTitle.userDefaultsKey)
-        let activate = UserDefaults.standard.bool(forKey: UserSetting.activateByWindow.userDefaultsKey)
+        let hideTitle = userDefaults.bool(forKey: UserSetting.hideTitle.userDefaultsKey)
+        let activate = userDefaults.bool(forKey: UserSetting.activateByWindow.userDefaultsKey)
 
         if !hideTitle {
             panel.styleMask = [NSTitledWindowMask, NSHUDWindowMask, NSUtilityWindowMask, NSResizableWindowMask, ]
@@ -389,14 +422,14 @@ class HeliumPanelController : NSWindowController {
 
                 // Save to defaults if valid. Else, use Helium default page
                 if self.validateURL(text) {
-                    UserDefaults.standard.set(text, forKey: UserSetting.homePageURL.userDefaultsKey)
+                    self.userDefaults.set(text, forKey: UserSetting.homePageURL.userDefaultsKey)
                 }
                 else{
-                    UserDefaults.standard.set("https://cdn.rawgit.com/JadenGeller/Helium/master/helium_start.html", forKey: UserSetting.homePageURL.userDefaultsKey)
+                    self.userDefaults.set("https://cdn.rawgit.com/JadenGeller/Helium/master/helium_start.html", forKey: UserSetting.homePageURL.userDefaultsKey)
                 }
 
                 // Load new Home page
-                self.webViewController.loadAlmostURL(UserDefaults.standard.string(forKey: UserSetting.homePageURL.userDefaultsKey)!)
+                self.webViewController.loadAlmostURL(self.userDefaults.string(forKey: UserSetting.homePageURL.userDefaultsKey)!)
             }
         })
         urlField.becomeFirstResponder()

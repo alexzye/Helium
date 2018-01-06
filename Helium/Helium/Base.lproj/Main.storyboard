@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -155,7 +156,7 @@ CA
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Translucency" systemMenu="window" id="fPu-ZA-vuX">
                                                 <items>
-                                                    <menuItem title="Enabled" keyEquivalent="t" id="wnn-Wb-fUq">
+                                                    <menuItem title="Enabled" tag="1" keyEquivalent="t" id="wnn-Wb-fUq">
                                                         <connections>
                                                             <action selector="translucencyPress:" target="Ady-hI-5gd" id="orR-QV-BPD"/>
                                                         </connections>
@@ -215,34 +216,28 @@ CA
                                                                     </connections>
                                                                 </menuItem>
                                                             </items>
-                                                            <connections>
-                                                                <outlet property="delegate" destination="Voe-Tx-rLC" id="hNg-oj-Cad"/>
-                                                            </connections>
                                                         </menu>
                                                     </menuItem>
                                                     <menuItem isSeparatorItem="YES" id="52B-gm-nq5"/>
-                                                    <menuItem title="Always" state="on" id="UhQ-aG-PEv" userLabel="Always">
+                                                    <menuItem title="Always" tag="2" id="UhQ-aG-PEv" userLabel="Always">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="alwaysPreferencePress:" target="Ady-hI-5gd" id="HmW-j0-3Nx"/>
                                                         </connections>
                                                     </menuItem>
-                                                    <menuItem title="Mouse Over" id="Tdi-1w-idY">
+                                                    <menuItem title="Mouse Over" tag="3" id="Tdi-1w-idY">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="overPreferencePress:" target="Ady-hI-5gd" id="mAm-Yw-rQF"/>
                                                         </connections>
                                                     </menuItem>
-                                                    <menuItem title="Mouse Outside" id="keL-ga-Rmv">
+                                                    <menuItem title="Mouse Outside" tag="4" id="keL-ga-Rmv">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="outsidePreferencePress:" target="Ady-hI-5gd" id="9TA-nd-SjS"/>
                                                         </connections>
                                                     </menuItem>
                                                 </items>
-                                                <connections>
-                                                    <outlet property="delegate" destination="Voe-Tx-rLC" id="Pga-5b-ccP"/>
-                                                </connections>
                                             </menu>
                                         </menuItem>
                                         <menuItem title="Zoom" id="kjo-5J-SOa">
@@ -285,20 +280,24 @@ CA
                         </items>
                     </menu>
                     <connections>
-                        <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
+                        <outlet property="delegate" destination="Voe-Tx-rLC" id="rac-qy-Rnf"/>
                     </connections>
                 </application>
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Helium" customModuleProvider="target">
                     <connections>
-                        <outlet property="activateByWindowMenu" destination="ZAH-lC-RGZ" id="b0r-S3-UaQ"/>
                         <outlet property="fullScreenFloatMenu" destination="J8Z-sv-9PI" id="8gu-KT-nBS"/>
                         <outlet property="hideTitleBarMenu" destination="ADo-ja-cxb" id="3tV-Y4-SnP"/>
                         <outlet property="magicURLMenu" destination="GQ3-Bi-0IJ" id="1Kj-Qu-x6d"/>
                         <outlet property="percentageMenu" destination="wlj-XI-Lng" id="9dj-5p-3sa"/>
+                        <outlet property="translucencyAlways" destination="UhQ-aG-PEv" id="aGA-EA-sng"/>
+                        <outlet property="translucencyEnabled" destination="wnn-Wb-fUq" id="soF-Dm-8RY"/>
+                        <outlet property="translucencyMouseOutside" destination="keL-ga-Rmv" id="8gR-3N-uWD"/>
+                        <outlet property="translucencyMouseOver" destination="Tdi-1w-idY" id="DCV-OL-X1D"/>
                     </connections>
                 </customObject>
                 <customObject id="sQQ-SA-Rgm" customClass="SUUpdater"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <userDefaultsController representsSharedInstance="YES" id="z31-TD-Fb9"/>
             </objects>
             <point key="canvasLocation" x="-27" y="-197"/>
         </scene>
@@ -312,6 +311,9 @@ CA
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1057"/>
+                        <connections>
+                            <outlet property="delegate" destination="B8D-0N-5wS" id="pRG-c0-QtP"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="XfG-lQ-9wD" kind="relationship" relationship="window.shadowedContentViewController" id="cq2-FE-JQM"/>

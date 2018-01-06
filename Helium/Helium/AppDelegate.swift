@@ -14,8 +14,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @IBOutlet weak var magicURLMenu: NSMenuItem!
     @IBOutlet weak var percentageMenu: NSMenuItem!
     @IBOutlet weak var fullScreenFloatMenu: NSMenuItem!
-    @IBOutlet weak var activateByWindowMenu: NSMenuItem!
     @IBOutlet weak var hideTitleBarMenu: NSMenuItem!
+    @IBOutlet weak var translucencyEnabled: NSMenuItem!
+    @IBOutlet weak var translucencyAlways: NSMenuItem!
+    @IBOutlet weak var translucencyMouseOver: NSMenuItem!
+    @IBOutlet weak var translucencyMouseOutside: NSMenuItem!
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSAppleEventManager.shared().setEventHandler(
@@ -27,17 +30,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        magicURLMenu.state = UserDefaults.standard.bool(forKey: UserSetting.disabledMagicURLs.userDefaultsKey) ? NSOffState : NSOnState
-        fullScreenFloatMenu.state = UserDefaults.standard.bool(forKey: UserSetting.disabledFullScreenFloat.userDefaultsKey) ? NSOffState : NSOnState
-        activateByWindowMenu.state = UserDefaults.standard.bool(forKey: UserSetting.activateByWindow.userDefaultsKey) ? NSOnState : NSOffState
-        hideTitleBarMenu.state = UserDefaults.standard.bool(forKey: UserSetting.hideTitle.userDefaultsKey) ? NSOnState : NSOffState
-      
-        if let alpha = UserDefaults.standard.object(forKey: UserSetting.opacityPercentage.userDefaultsKey) {
-            let offset = (alpha as! Int)/10 - 1
-            for (index, button) in percentageMenu.submenu!.items.enumerated() {
-                (button ).state = (offset == index) ? NSOnState : NSOffState
-            }
-        }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

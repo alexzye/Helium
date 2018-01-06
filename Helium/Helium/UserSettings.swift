@@ -15,6 +15,8 @@ internal enum UserSetting {
     case homePageURL
     case activateByWindow
     case hideTitle
+    case translucencyPreference
+    case translucencyEnabled
 
     var userDefaultsKey: String {
         switch self {
@@ -24,6 +26,8 @@ internal enum UserSetting {
         case .homePageURL: return "homePageURL"
         case .activateByWindow: return "activateByWindow"
         case .hideTitle: return "hideTitle"
+        case .translucencyPreference: return "translucencyPreference"
+        case .translucencyEnabled: return "translucencyEnabled"
         }
     }
 }
